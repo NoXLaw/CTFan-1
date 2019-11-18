@@ -189,7 +189,9 @@ iVar2 = ((int)__ptr[1] * 0x5d + 0xda) % 0x100
 (iVar2 * iVar2 * 0x3da + 0x354 + iVar2 * 0x3c) % (iVar2 * 0x56 + 0x35f) == 0
 
 ```
-Ini adalah proses pengecekan nilai `__ptr[1]` yang harus dipenuhi. Dari sini bisa kita scan/bruteforce nilai `__ptr[1]` karena kemunginannya 0 sampai 255. Dan, berikut adalah solusi yang saya buat untuk solving tiap byte dari `__ptr[]`:
+Ini adalah proses pengecekan nilai `__ptr[1]` yang harus dipenuhi. Dari sini bisa kita scan/bruteforce nilai `__ptr[1]` karena kemunginannya 0 sampai 255.
+## Solusi
+Dan, berikut adalah solusi yang saya buat untuk solving tiap byte dari `__ptr[]`:
 ```
 public static char getVal(int v1, int v2, int v3, int v4, int v5, int v6, int v7) {
     String PrintableChar = "{}?0123456789abcdefghijklmnopqrstuvwxyz_-!ABCDEFGHIJKLMNOPQRSTUVWXYZ@";
@@ -275,4 +277,5 @@ Dan akhirnya jika dijalankan output aplikasi tersebut adalah:
 ```
 SIS{y0u_c4N_s33_7h15_15_34513R_7h4n_Y0u_7h1nk_r16h7?__!!!}
 ```
-Tentunya dari sini sudah dapat diketahui nilai flag lengkapnya yaitu `ASIS{y0u_c4N_s33_7h15_15_34513R_7h4n_Y0u_7h1nk_r16h7?__!!!}`.
+Tentunya dari sini sudah dapat diketahui nilai flag lengkapnya yaitu:
+ `ASIS{y0u_c4N_s33_7h15_15_34513R_7h4n_Y0u_7h1nk_r16h7?__!!!}`.
