@@ -185,7 +185,6 @@ Fungsi tersebut selalu memiliki 2 bagian:
 iVar2 = ((int)__ptr[1] * 0x5d + 0xda) % 0x100
 ```
 Di sini nilai `iVar2` diinisialisasi.
-
 2. Bagian pengecekan value. Pada bagian ini `iVar2` dilakuakn pengecekan sehingga jika nilai true diperoleh, harapan pembuat soal adalah nilai `__ptr[i]` benar:
 ```
 (iVar2 * iVar2 * 0x3da + 0x354 + iVar2 * 0x3c) % (iVar2 * 0x56 + 0x35f) == 0
