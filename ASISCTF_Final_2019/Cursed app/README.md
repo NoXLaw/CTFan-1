@@ -180,11 +180,10 @@ Dari sini terlihat proses pengecekan array of char `__ptr[]` sedemikian rupa seh
 Jika kita lihat proses pengecekan `__ptr` dilakuan tiap bytes. Dan jika dilihat lebih seksama ada pattern yang dapat kita buat sebuah fungsi (kemungkinan source aslinya menggunakan macro function C).
 
 Fungsi tersebut selalu memiliki 2 bagian:
-1. Bagian inisialisasi variable (sample pada array ke 1):
+1. Bagian inisialisasi variable (sample pada array ke 1). Di sini nilai `iVar2` diinisialisasi.
 ```
 iVar2 = ((int)__ptr[1] * 0x5d + 0xda) % 0x100
 ```
-Di sini nilai `iVar2` diinisialisasi.
 2. Bagian pengecekan value. Pada bagian ini `iVar2` dilakuakn pengecekan sehingga jika nilai true diperoleh, harapan pembuat soal adalah nilai `__ptr[i]` benar:
 ```
 (iVar2 * iVar2 * 0x3da + 0x354 + iVar2 * 0x3c) % (iVar2 * 0x56 + 0x35f) == 0
