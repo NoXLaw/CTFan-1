@@ -1,9 +1,9 @@
 
 # Cursed app
-Diberikan aplikasi dalam bentuk elf binary yang sepertinya mengharapkan parameter file input yang berisi flag-nya.
+Diberikan aplikasi dalam bentuk _ELF binary_ yang sepertinya mengharapkan parameter file input yang berisi **flag**-nya.
 
 ## Analisa statis
-Langsung kita buka dengan Ghidra, hasilnya:
+Langsung kita buka dengan [Ghidra](https://ghidra-sre.org/), dan berikut hasilnya:
 ```
     void entry(undefined8 param_1,undefined8 param_2,undefined8 param_3)
 
@@ -19,7 +19,6 @@ Langsung kita buka dengan Ghidra, hasilnya:
 Kita fokus pada `FUN_001010e0`:
 
 ```
-
 undefined8 FUN_001010e0(undefined8 param_1,long param_2)
 
 {
@@ -176,20 +175,23 @@ undefined8 FUN_001010e0(undefined8 param_1,long param_2)
   longjmp((__jmp_buf_tag *)local_e8,1);
 }
 ```
-Dari sini terlihat proses pengecekan array of char `__ptr[]` sedemikian rupa sehingga jika semua pengecekan true maka `__ptr` berisi nilai flag yang diharapkan. Dari ini kita harus membuat coding sederhana (seharusnya cukup dengan scripting mungkin dalam python atau bash sudah cukup, namun karena saya lebih sering menggunakan Java dalam kasus ini lebih praktis jika menulis solusinya dengan Java). Untuk menebak nilai masing-masing array of char dari `__ptr[]`.
+Dari sini terlihat proses pengecekan array of char `__ptr[]` sedemikian rupa sehingga jika semua pengecekan _true_ maka `__ptr` berisi nilai **flag** yang diharapkan. Dari sini kita dapat membuat script sederhana (seharusnya cukup dengan scripting, mungkin dalam _Python_ atau _shell script_ sudah cukup, namun karena saya lebih sering menggunakan Java dalam kasus ini lebih praktis jika menulis solusinya dengan Java). Untuk menebak nilai masing-masing array of char dari `__ptr[]` yang memenuhi kriteria.
 
 Jika kita lihat proses pengecekan `__ptr` dilakuan tiap bytes. Dan jika dilihat lebih seksama ada pattern yang dapat kita buat sebuah fungsi (kemungkinan source aslinya menggunakan macro function C).
 
-Pattern yang saya maksud adalah (sample pada array ke 1):
+Fungsi tersebut selalu memiliki 2 bagian:
+1. Bagian inisialisasi variable (sample pada array ke 1):
 ```
 iVar2 = ((int)__ptr[1] * 0x5d + 0xda) % 0x100
 ```
-(di sini nilai `iVar2` diinisialisasi), kemudian:
+Di sini nilai `iVar2` diinisialisasi.
+
+2. Bagian pengecekan value. Pada bagian ini `iVar2` dilakuakn pengecekan sehingga jika nilai true diperoleh, harapan pembuat soal adalah nilai `__ptr[i]` benar:
 ```
 (iVar2 * iVar2 * 0x3da + 0x354 + iVar2 * 0x3c) % (iVar2 * 0x56 + 0x35f) == 0
-
 ```
-Ini adalah proses pengecekan nilai `__ptr[1]` yang harus dipenuhi. Dari sini bisa kita scan/bruteforce nilai `__ptr[1]` karena kemunginannya 0 sampai 255.
+Dari sini bisa kita scan/bruteforce nilai `__ptr[1]` karena kemunginannya hanya 0 sampai 255 (0x00h - 0xFFh).
+
 ## Solusi
 Dan, berikut adalah solusi yang saya buat untuk solving tiap byte dari `__ptr[]`:
 ```
@@ -203,13 +205,12 @@ public static char getVal(int v1, int v2, int v3, int v4, int v5, int v6, int v7
             return (char) (PrintableChar.getBytes()[i]);
         }
     }
-//        System.out.println("");
     return (char) 0;
 }
 ```
-Nilai v1, v2, v3, v4, v5, v6, dan v7 merupakan nilai constant yang diperoleh dari hasil reverse sebelumnya. Sebagai contoh untuk `__ptr[1]` maka nilai v1, v2, v3, v4, v5, v6, dan v7 adalah: `0x5d, 0xda, 0x3da, 0x354, 0x3c, 0x56, dan 0x35f`.
+Nilai v1, v2, v3, v4, v5, v6, dan v7 merupakan nilai constant yang diperoleh dari nilai konstant yang ada pada prosedur pengecekan tiap `__ptr[]`. Sebagai contoh untuk `__ptr[1]` maka nilai v1, v2, v3, v4, v5, v6, dan v7 adalah: `0x5d, 0xda, 0x3da, 0x354, 0x3c, 0x56, dan 0x35f`. Dan seterusnya.
 
-Yang cukup menyita waktu dan malesin adalah menulis masing-masing constant tersebut menjadi:
+Yang cukup menyita waktu dan _malesin_ adalah menulis masing-masing constant tersebut. Dan memang cocok dengan nama challenge-nya yaitu "Cursed app". Berikut adalah hasil finalnya dengan nilai v1-v7 yang telah disesuaikan untuk tiap `__ptr[]`:
 ```
 public static void main(String[] args) {
     getVal(0x5d, 0xda, 0x3da, 0x354, 0x3c, 0x56, 0x35f);
@@ -277,5 +278,5 @@ Dan akhirnya jika dijalankan output aplikasi tersebut adalah:
 ```
 SIS{y0u_c4N_s33_7h15_15_34513R_7h4n_Y0u_7h1nk_r16h7?__!!!}
 ```
-Tentunya dari sini sudah dapat diketahui nilai flag lengkapnya yaitu:
+Berbekal pengetahuan bahwa nilai **flag** selalu dalam format `"ASIS{...}"` tentu dari sini sudah dapat diketahui nilai flag yang benar adalah:
  `ASIS{y0u_c4N_s33_7h15_15_34513R_7h4n_Y0u_7h1nk_r16h7?__!!!}`.
