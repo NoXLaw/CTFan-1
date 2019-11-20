@@ -4,7 +4,7 @@ Diberikan aplikasi dalam bentuk _ELF binary_ yang sepertinya mengharapkan parame
 
 ## Analisa statis
 Langsung kita buka dengan [Ghidra](https://ghidra-sre.org/), dan berikut hasilnya:
-```
+```c
     void entry(undefined8 param_1,undefined8 param_2,undefined8 param_3)
 
     {
@@ -18,7 +18,7 @@ Langsung kita buka dengan [Ghidra](https://ghidra-sre.org/), dan berikut hasilny
 ```    
 Kita fokus pada `FUN_001010e0`:
 
-```
+```c
 undefined8 FUN_001010e0(undefined8 param_1,long param_2)
 
 {
@@ -181,18 +181,18 @@ Jika kita lihat proses pengecekan `__ptr` dilakuan tiap bytes. Dan jika dilihat 
 
 Fungsi tersebut selalu memiliki 2 bagian:
 1. Bagian inisialisasi variable (sample pada array ke 1). Di sini nilai `iVar2` diinisialisasi.
-```
+```c
 iVar2 = ((int)__ptr[1] * 0x5d + 0xda) % 0x100
 ```
 2. Bagian pengecekan value. Pada bagian ini `iVar2` dilakuakn pengecekan sehingga jika nilai true diperoleh, harapan pembuat soal adalah nilai `__ptr[i]` benar:
-```
+```c
 (iVar2 * iVar2 * 0x3da + 0x354 + iVar2 * 0x3c) % (iVar2 * 0x56 + 0x35f) == 0
 ```
 Dari sini bisa kita scan/bruteforce nilai `__ptr[1]` karena kemunginannya hanya 0 sampai 255 (0x00h - 0xFFh).
 
 ## Solusi
 Dan, berikut adalah solusi yang saya buat untuk solving tiap byte dari `__ptr[]`:
-```
+```java
 public static char getVal(int v1, int v2, int v3, int v4, int v5, int v6, int v7) {
     String PrintableChar = "{}?0123456789abcdefghijklmnopqrstuvwxyz_-!ABCDEFGHIJKLMNOPQRSTUVWXYZ@";
     int iVar2;
@@ -209,7 +209,7 @@ public static char getVal(int v1, int v2, int v3, int v4, int v5, int v6, int v7
 Nilai v1, v2, v3, v4, v5, v6, dan v7 merupakan nilai constant yang diperoleh dari nilai konstant yang ada pada prosedur pengecekan tiap `__ptr[]`. Sebagai contoh untuk `__ptr[1]` maka nilai v1, v2, v3, v4, v5, v6, dan v7 adalah: `0x5d, 0xda, 0x3da, 0x354, 0x3c, 0x56, dan 0x35f`. Dan seterusnya.
 
 Yang cukup menyita waktu dan _malesin_ adalah menulis masing-masing constant tersebut. Dan memang cocok dengan nama challenge-nya yaitu "Cursed app". Berikut adalah hasil finalnya dengan nilai v1-v7 yang telah disesuaikan untuk tiap `__ptr[]`:
-```
+```java
 public static void main(String[] args) {
     getVal(0x5d, 0xda, 0x3da, 0x354, 0x3c, 0x56, 0x35f);
     getVal(5, 0x95, 0x19e, 0x3aa, 0x49, 0xb9, 0xb2);
